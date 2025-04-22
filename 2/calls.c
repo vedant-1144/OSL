@@ -35,6 +35,22 @@ void simulate_grep(const char *pattern, const char *file) {
     }
 }
 
+void simulate_ls(const char *directory) {
+    pid_t pid = fork();
+    if (pid < 0) {
+        perror("Fork failed");
+        exit(EXIT_FAILURE);
+    } else if (pid == 0) {
+        printf("Child (ls): PID=%d, Parent PID=%d\n", getpid(), getppid());
+        execlp("./myls", "myls", directory, NULL);
+        perror("execlp failed");
+        exit(EXIT_FAILURE);
+    } else {
+        wait(NULL);
+        printf("\nParent: Completed ls command.\n");
+    }
+}
+
 int main() {
     int choice;
     char source[100], destination[100], pattern[100], file[100];
@@ -42,6 +58,7 @@ int main() {
     printf("Select a command to simulate:\n");
     printf("1. cp (copy file)\n");
     printf("2. grep (search in file)\n");
+    printf("3. ls (Listing Content Of Directory)\n");
     printf("Enter your choice: ");
     scanf("%d", &choice);
 
@@ -60,6 +77,12 @@ int main() {
             printf("Enter file to search in: ");
             scanf("%s", file);
             simulate_grep(pattern, file);
+            break;
+
+        case 3:
+            printf("Enter Directory to List: ");
+            scanf("%s", source);
+            simulate_ls(source);
             break;
 
         default:
