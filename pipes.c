@@ -1,59 +1,59 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <string.h>
-#include <fcntl.h>
-
-#define BUFFER_SIZE 100
-
-int main() {
+#include<stdio.h>
+#include<unistd.h>
+#include<sys/types.h>
+#include<sys/stat.h>
+#include<fcntl.h>
+ 
+int main(int argc, char* argv[]) {
+    if(argc != 3) {
+        printf("You can not enter more or less than 3 arguments.\n");
+        return 0;
+    }
+ 
     int fd[2];
-    pid_t pid;
-    char write_msg[] = "Hello from parent to child!";
-    char read_msg[BUFFER_SIZE];
-
-    if (pipe(fd) == -1) {
-        perror("Pipe failed");
+    int fork_val;
+    char* file_1 = argv[1];
+    char* file_2 = argv[2];
+    int src_file;
+    int dest_file;
+ 
+    src_file = open(file_1, O_RDONLY);
+    if(src_file == -1) {
+        printf("Unable to open source file!!!\n");
         return 1;
+    } else {
+        dup2(src_file, STDIN_FILENO);
+        close(src_file);
     }
-
-    pid = fork();
-    if (pid < 0) {
-        perror("Fork failed");
-        return 1;
-    }
-    
-    if (pid > 0) { // Parent Process
-       
-        close(fd[0]); // Close unused read end
-        write(fd[1], write_msg, strlen(write_msg) + 1);
-        close(fd[1]); // Close write end after writing
-    } 
-    else { // Child Process
-
-        close(fd[1]);
-        read(fd[0], read_msg, BUFFER_SIZE);
+ 
+    pipe(fd);
+    fork_val = fork();
+ 
+    if(fork_val > 0) {
+        dup2(fd[1], STDOUT_FILENO);
         close(fd[0]);
-
-        // Redirect output to a file
-        int file_fd = open("output.txt", O_WRONLY | O_CREAT | O_TRUNC, 0644);
-        if (file_fd < 0) {
-            perror("File open failed");
-            return 1;
-        }
-        dup2(file_fd, STDOUT_FILENO);
-        close(file_fd);
-        
-        // Redirect input from a file (if needed)
-        int input_fd = open("input.txt", O_RDONLY);
-        if (input_fd >= 0) {
-            dup2(input_fd, STDIN_FILENO);
-            close(input_fd);
-        }
-        
-        // Print
-        printf("Child received: %s\n", read_msg);
-        fprintf(stderr, "This is an error message\n");
+        close(fd[1]);
+        execl("/usr/bin/sort", "sort", NULL);
+        perror("execl failed for sort");
     }
+    else if(fork_val == 0) {
+        dup2(fd[0], STDIN_FILENO);
+        dest_file = open(file_2, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+        if(dest_file == -1) {
+            printf("Unable to open destination file!!!\n");
+            return 1;
+        } else {
+            dup2(dest_file, STDOUT_FILENO);
+            close(dest_file);
+            close(fd[0]);
+            close(fd[1]);
+            execl("/usr/bin/uniq", "uniq", NULL);
+            perror("execl failed for uniq");
+        }
+    } else {
+        perror("Fork failed!!!");
+        return 1;
+    }
+ 
     return 0;
 }
