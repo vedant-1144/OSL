@@ -3,8 +3,8 @@
 #include <limits.h>
 
 void fifo(int requests[], int n, int head) {
-    int total_movement = 0;
-    int current_position = head;
+    int total = 0;
+    int curr = head;
     
     printf("\nFIFO Disk Scheduling :- \n");
     printf("Initial Head Position: %d\n", head);
@@ -17,22 +17,22 @@ void fifo(int requests[], int n, int head) {
     
     printf("Head Movement:\n");
     for (int i = 0; i < n; i++) {
-        int distance = abs(requests[i] - current_position);
-        total_movement += distance;
+        int distance = abs(requests[i] - curr);
+        total += distance;
         
         printf("Move from %d -> %d (Distance: %d)\n", 
-               current_position, requests[i], distance);
+               curr, requests[i], distance);
         
-        current_position = requests[i];
+        curr = requests[i];
     }
     
-    printf("\nTotal Head Movement: %d\n", total_movement);
-    printf("Average Seek Length: %.2f\n\n", (float)total_movement / n);
+    printf("\nTotal Head Movement: %d\n", total);
+    printf("Average Seek Length: %.2f\n\n", (float)total / n);
 }
 
 void sstf(int requests[], int n, int head) {
-    int total_movement = 0;
-    int current_position = head;
+    int total = 0;
+    int curr = head;
     int serviced[n];
     for (int i = 0; i < n; i++) serviced[i] = 0;
     
@@ -51,7 +51,7 @@ void sstf(int requests[], int n, int head) {
 
         for (int i = 0; i < n; i++) {
             if (!serviced[i]) {
-                int distance = abs(requests[i] - current_position);
+                int distance = abs(requests[i] - curr);
                 if (distance < min_distance) {
                     min_distance = distance;
                     min_index = i;
@@ -62,21 +62,21 @@ void sstf(int requests[], int n, int head) {
         if (min_index == -1) break;
         
         serviced[min_index] = 1;
-        total_movement += min_distance;
+        total += min_distance;
         
         printf("Move from %d -> %d (Distance: %d)\n", 
-               current_position, requests[min_index], min_distance);
+               curr, requests[min_index], min_distance);
         
-        current_position = requests[min_index];
+        curr = requests[min_index];
     }
     
-    printf("\nTotal Head Movement: %d\n", total_movement);
-    printf("Average Seek Length: %.2f\n\n", (float)total_movement / n);
+    printf("\nTotal Head Movement: %d\n", total);
+    printf("Average Seek Length: %.2f\n\n", (float)total / n);
 }
 
 void scan(int requests[], int n, int head, int direction, int disk_size) {
-    int total_movement = 0;
-    int current_position = head;
+    int total = 0;
+    int curr = head;
     int serviced[n];
     for (int i = 0; i < n; i++) serviced[i] = 0;
     
@@ -105,76 +105,76 @@ void scan(int requests[], int n, int head, int direction, int disk_size) {
     }
     
     if (direction == 1) { // Moving right (towards higher cylinders)
-
+        // First move right
         for (int i = 0; i < n; i++) {
-            if (sorted[i] >= current_position && !serviced[i]) {
-                int distance = abs(sorted[i] - current_position);
-                total_movement += distance;
+            if (sorted[i] >= curr) {
+                int distance = abs(sorted[i] - curr);
+                total += distance;
                 printf("Move from %d -> %d (Distance: %d)\n", 
-                       current_position, sorted[i], distance);
-                current_position = sorted[i];
-                serviced[i] = 1;
+                       curr, sorted[i], distance);
+                curr = sorted[i];
             }
         }
 
-        if (current_position != disk_size - 1) {
-            int distance = abs((disk_size - 1) - current_position);
-            total_movement += distance;
+        // Move to end if not there
+        if (curr != disk_size - 1) {
+            int distance = abs((disk_size - 1) - curr);
+            total += distance;
             printf("Move from %d -> %d (Distance: %d)\n", 
-                   current_position, disk_size - 1, distance);
-            current_position = disk_size - 1;
+                   curr, disk_size - 1, distance);
+            curr = disk_size - 1;
         }
 
+        // Then move left
         for (int i = n-1; i >= 0; i--) {
-            if (!serviced[i]) {
-                int distance = abs(sorted[i] - current_position);
-                total_movement += distance;
+            if (sorted[i] < head) {
+                int distance = abs(sorted[i] - curr);
+                total += distance;
                 printf("Move from %d -> %d (Distance: %d)\n", 
-                       current_position, sorted[i], distance);
-                current_position = sorted[i];
-                serviced[i] = 1;
+                       curr, sorted[i], distance);
+                curr = sorted[i];
             }
         }
-	}
-
+    } else { // Moving left (towards lower cylinders)
+        // First move left
         for (int i = n-1; i >= 0; i--) {
-            if (sorted[i] <= current_position && !serviced[i]) {
-                int distance = abs(sorted[i] - current_position);
-                total_movement += distance;
+            if (sorted[i] <= curr) {
+                int distance = abs(sorted[i] - curr);
+                total += distance;
                 printf("Move from %d -> %d (Distance: %d)\n", 
-                       current_position, sorted[i], distance);
-                current_position = sorted[i];
-                serviced[i] = 1;
+                       curr, sorted[i], distance);
+                curr = sorted[i];
             }
         }
 
-        if (current_position != 0) {
-            int distance = abs(0 - current_position);
-            total_movement += distance;
+        // Move to beginning if not there
+        if (curr != 0) {
+            int distance = abs(0 - curr);
+            total += distance;
             printf("Move from %d -> %d (Distance: %d)\n", 
-                   current_position, 0, distance);
-            current_position = 0;
+                   curr, 0, distance);
+            curr = 0;
         }
 
+        // Then move right
         for (int i = 0; i < n; i++) {
-            if (!serviced[i]) {
-                int distance = abs(sorted[i] - current_position);
-                total_movement += distance;
+            if (sorted[i] > head) {
+                int distance = abs(sorted[i] - curr);
+                total += distance;
                 printf("Move from %d -> %d (Distance: %d)\n", 
-                       current_position, sorted[i], distance);
-                current_position = sorted[i];
-                serviced[i] = 1;
+                       curr, sorted[i], distance);
+                curr = sorted[i];
             }
         }
     }
     
-    printf("\nTotal Head Movement: %d\n", total_movement);
-    printf("Average Seek Length: %.2f\n\n", (float)total_movement / n);
+    printf("\nTotal Head Movement: %d\n", total);
+    printf("Average Seek Length: %.2f\n\n", (float)total / n);
 }
 
 void cscan(int requests[], int n, int head, int direction, int disk_size) {
-    int total_movement = 0;
-    int current_position = head;
+    int total = 0;
+    int curr = head;
     int serviced[n];
     for (int i = 0; i < n; i++) serviced[i] = 0;
     
@@ -204,81 +204,81 @@ void cscan(int requests[], int n, int head, int direction, int disk_size) {
     
     if (direction == 1) {
         for (int i = 0; i < n; i++) {
-            if (sorted[i] >= current_position && !serviced[i]) {
-                int distance = abs(sorted[i] - current_position);
-                total_movement += distance;
+            if (sorted[i] >= curr && !serviced[i]) {
+                int distance = abs(sorted[i] - curr);
+                total += distance;
                 printf("Move from %d -> %d (Distance: %d)\n", 
-                       current_position, sorted[i], distance);
-                current_position = sorted[i];
+                       curr, sorted[i], distance);
+                curr = sorted[i];
                 serviced[i] = 1;
             }
         }
 
-        if (current_position != disk_size - 1) {
-            int distance = abs((disk_size - 1) - current_position);
-            total_movement += distance;
+        if (curr != disk_size - 1) {
+            int distance = abs((disk_size - 1) - curr);
+            total += distance;
             printf("Move from %d -> %d (Distance: %d)\n", 
-                   current_position, disk_size - 1, distance);
-            current_position = disk_size - 1;
+                   curr, disk_size - 1, distance);
+            curr = disk_size - 1;
         }
         printf("Jump from %d -> 0 (Distance: %d)\n", 
                disk_size - 1, disk_size - 1);
-        total_movement += disk_size - 1;
-        current_position = 0;
+        total += disk_size - 1;
+        curr = 0;
 
         for (int i = 0; i < n; i++) {
             if (!serviced[i]) {
-                int distance = abs(sorted[i] - current_position);
-                total_movement += distance;
+                int distance = abs(sorted[i] - curr);
+                total += distance;
                 printf("Move from %d -> %d (Distance: %d)\n", 
-                       current_position, sorted[i], distance);
-                current_position = sorted[i];
+                       curr, sorted[i], distance);
+                curr = sorted[i];
                 serviced[i] = 1;
             }
         }
     } else {
 
         for (int i = n-1; i >= 0; i--) {
-            if (sorted[i] <= current_position && !serviced[i]) {
-                int distance = abs(sorted[i] - current_position);
-                total_movement += distance;
+            if (sorted[i] <= curr && !serviced[i]) {
+                int distance = abs(sorted[i] - curr);
+                total += distance;
                 printf("Move from %d -> %d (Distance: %d)\n", 
-                       current_position, sorted[i], distance);
-                current_position = sorted[i];
+                       curr, sorted[i], distance);
+                curr = sorted[i];
                 serviced[i] = 1;
             }
         }
 
-        if (current_position != 0) {
-            int distance = abs(0 - current_position);
-            total_movement += distance;
+        if (curr != 0) {
+            int distance = abs(0 - curr);
+            total += distance;
             printf("Move from %d -> %d (Distance: %d)\n", 
-                   current_position, 0, distance);
-            current_position = 0;
+                   curr, 0, distance);
+            curr = 0;
         }
         printf("Jump from 0 -> %d (Distance: %d)\n", 
                disk_size - 1, disk_size - 1);
-        total_movement += disk_size - 1;
-        current_position = disk_size - 1;
+        total += disk_size - 1;
+        curr = disk_size - 1;
 
         for (int i = n-1; i >= 0; i--) {
             if (!serviced[i]) {
-                int distance = abs(sorted[i] - current_position);
-                total_movement += distance;
+                int distance = abs(sorted[i] - curr);
+                total += distance;
                 printf("Move from %d -> %d (Distance: %d)\n", 
-                       current_position, sorted[i], distance);
-                current_position = sorted[i];
+                       curr, sorted[i], distance);
+                curr = sorted[i];
                 serviced[i] = 1;
             }
         }
     }
     
-    printf("\nTotal Head Movement: %d\n", total_movement);
-    printf("Average Seek Length: %.2f\n\n", (float)total_movement / n);
+    printf("\nTotal Head Movement: %d\n", total);
+    printf("Average Seek Length: %.2f\n\n", (float)total / n);
 }
 
 int main() {
-    int n, head, direction, disk_size;
+    int n, head, dir, disk_size;
     
     printf("Enter the number of disk requests: ");
     scanf("%d", &n);
@@ -296,13 +296,35 @@ int main() {
     printf("Enter the disk size (max cylinder number): ");
     scanf("%d", &disk_size);
     
-    printf("Enter initial direction (0 for left, 1 for right): ");
-    scanf("%d", &direction);
-    
-    fifo(req, n, head);
-    sstf(req, n, head);
-    scan(req, n, head, direction, disk_size);
-    cscan(req, n, head, direction, disk_size);
+    int choice;
+    while (1) {
+        printf("\nDisk Scheduling Algorithms\n");
+        printf("1. FIFO\n 2. SSTF\n 3. SCAN\n 4. C-SCAN\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+        
+        switch (choice) {
+            case 1:
+                fifo(req, n, head);
+                break;
+            case 2:
+                sstf(req, n, head);
+                break;
+            case 3:
+                printf("Enter Dir -> 0.Left, 1.Right: ");
+                scanf("%d", &dir);
+                scan(req, n, head, dir, disk_size);
+                break;
+            case 4:
+                printf("Enter Dir -> 0.Left, 1.Right : ");
+                scanf("%d", &dir);
+                cscan(req, n, head, dir, disk_size);
+                break;
+            default:
+                printf("Invalid choice! Exiting Program...\n");
+                return 0;
+        }
+    }
 
     return 0;
 }

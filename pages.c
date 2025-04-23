@@ -125,7 +125,7 @@ int main() {
             case 1: fifo(pages, n, frames); break;
             case 2: lru(pages, n, frames); break;
             case 3: optimal(pages, n, frames); break;
-            default: printf("Invalid choice!\n"); return 0;
+            default: printf("Invalid choice! Thank You \n"); return 0;
         }
     }
     
