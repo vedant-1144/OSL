@@ -1,7 +1,6 @@
 #include<stdio.h>
 #include<unistd.h>
 #include<sys/types.h>
-#include<sys/stat.h>
 #include<fcntl.h>
  
 int main(int argc, char* argv[]) {
@@ -49,7 +48,7 @@ int main(int argc, char* argv[]) {
             close(dest_file);
             close(fd[0]);
             close(fd[1]);
-            execl("/usr/bin/uniq", "uniq", NULL);
+            execl("/usr/bin/uniq", "uniq", "-c", NULL);
             perror("execl failed for uniq");
         }
     } else {

@@ -3,7 +3,6 @@
 #include <vector>
 #include <algorithm>
 #include <queue>
-
 using namespace std;
 
 struct Process {
@@ -169,6 +168,7 @@ void roundRobin(vector<Process>& p, int tq) {
             }
         }
 
+        // If the process is completed, set its completion time
         if (p[i].remaining == 0) {
             p[i].ct = time;
             completed++;
@@ -196,6 +196,7 @@ int main() {
             cout << "Enter Arrival and Burst Time for P" << p[i].pid << ": ";
             cin >> p[i].arrival >> p[i].burst;
             p[i].remaining = p[i].burst;
+            p[i].ct = 0;
         }
 
         cout << "Select Scheduling Algorithm:\n1. FCFS\n2. SJF (Non-Preemptive)\n3. SJF (Preemptive)\n4. Priority (Non-Preemptive)\n5. Priority (Preemptive)\n6. Round Robin\nChoice: ";
