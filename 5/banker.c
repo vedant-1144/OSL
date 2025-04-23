@@ -31,7 +31,6 @@ void banker(struct Process p[], int avail[], int n, int m) {
     while (cnt < n) {
         bool found = false;
         for (int i = 0; i < n; i++) {
-
             if ( !finish[i] ) {
                 bool canAlloc = true;
                 for (int j = 0; j < m; j++) {

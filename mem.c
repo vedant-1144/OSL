@@ -14,11 +14,12 @@ void printTable(int pSize[], int alloc[], int ogbSize[], int n, int m) {
             int block = alloc[i];
             int rem = ogbSize[block] - pSize[i];
             printf("%-10d%-15d%-15d%-15d%-15d\n", 
-                   i, pSize[i], block, ogbSize[block], rem);
+                   i+1, pSize[i], block+1, ogbSize[block], rem);
             ogbSize[block] = rem;
         }
     }
 }
+
 void firstFit(int bSize[], int m, int pSize[], int n) {
     int alloc[n];
     int ogbSize[m];
@@ -34,7 +35,6 @@ void firstFit(int bSize[], int m, int pSize[], int n) {
             }
         }
     }
-
     printTable(pSize, alloc, ogbSize, n, m);
 }
 
@@ -45,11 +45,11 @@ void bestFit(int bSize[], int m, int pSize[], int n) {
     for (int i = 0; i < n; i++) alloc[i] = -1;
 
     for (int i = 0; i < n; i++) {
-        int bestIdx = -1;
+        int bestIdx = -1, mini = 1e9;
         for (int j = 0; j < m; j++) {
-            if (bSize[j] >= pSize[i]) {
-                if (bestIdx == -1 || bSize[j] < bSize[bestIdx])
-                    bestIdx = j;
+            if (bSize[j] >= pSize[i] && bSize[j] < mini) {
+                bestIdx = j;
+                mini = bSize[j];
             }
         }
         if (bestIdx != -1) {
@@ -68,11 +68,11 @@ void worstFit(int bSize[], int m, int pSize[], int n) {
     for (int i = 0; i < n; i++) alloc[i] = -1;
 
     for (int i = 0; i < n; i++) {
-        int worstIdx = -1;
+        int worstIdx = -1, maxi = -1e9;
         for (int j = 0; j < m; j++) {
-            if (bSize[j] >= pSize[i]) {
-                if (worstIdx == -1 || bSize[j] > bSize[worstIdx])
-                    worstIdx = j;
+            if (bSize[j] >= pSize[i] && bSize[j] > maxi) {
+                worstIdx = j;
+                maxi = bSize[j];
             }
         }
         if (worstIdx != -1) {
@@ -101,7 +101,7 @@ void nextFit(int bSize[], int m, int pSize[], int n) {
                 break;
             }
             j = (j + 1) % m;
-            if (j == last) break;
+            if (j == last) break; // No more blocks available
         }
     }
     
