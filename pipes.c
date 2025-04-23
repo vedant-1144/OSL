@@ -30,6 +30,7 @@ int main(int argc, char* argv[]) {
     fork_val = fork();
  
     if(fork_val > 0) {
+        //Parent Process
         dup2(fd[1], STDOUT_FILENO);
         close(fd[0]);
         close(fd[1]);
@@ -37,6 +38,7 @@ int main(int argc, char* argv[]) {
         perror("execl failed for sort");
     }
     else if(fork_val == 0) {
+        //Child Process
         dup2(fd[0], STDIN_FILENO);
         dest_file = open(file_2, O_WRONLY | O_CREAT | O_TRUNC, 0644);
         if(dest_file == -1) {

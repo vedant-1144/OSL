@@ -32,7 +32,7 @@ void fcfs(vector<Process> p) {
 
     sort(p.begin(), p.end(), [](const Process &a, const Process &b) {
         return a.arrival < b.arrival;
-    });`
+    });
     
     int time = p[0].arrival;
     for (auto &proc : p) {

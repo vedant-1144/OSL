@@ -3,7 +3,6 @@
 #include <stdio.h>
 
 int totalBooks = 100;
-int numreader = 0;
 
 void *add_books(void *wno) {
     int booksAdd = 20;
