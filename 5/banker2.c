@@ -57,7 +57,6 @@ bool isSafe(struct Process p[], int avail[], int n, int m, int safeSeq[]) {
             return false;
         }
     }
-
     return true;
 }
 
